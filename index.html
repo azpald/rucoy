@@ -1,0 +1,177 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+table{
+  border-collapse: collapse;
+  margin: 5px;
+}
+table tr *{
+  padding: 5px;
+  text-align: center;
+  border: solid 1px;
+
+  background: #bef;
+}
+table tr td{
+  width: 20px;
+}
+input{
+  width: 50px;
+}
+
+</style>
+<script>
+var RUTE = {
+  1:[3,17],
+  2:[13,6],
+  3:[19,9],
+  4:[7,10],
+  5:[4,17],
+  6:[23,12],
+  7:[11,1],
+  8:[21,24],
+  9:[5,20],
+  10:[16,5],
+  11:[18,22],
+  12:[5,20],
+  13:[8,19],
+  14:[12,2],
+  15:[24,5],
+  16:[25,11],
+  17:[21,8],
+  18:[22,15],
+  19:[11,9],
+  20:[13,15],
+  21:[4,7],
+  22:[1,24],
+  23:[3,4],
+  24:[18,4],
+  25:[14,4]
+};
+var shortest = true;
+
+function cariRute(from,to,max,path){
+  if(!max)max=10;
+  if(!path)path={T:"",R:from+"_"};
+  if(path.T.length >= max)return [];
+  let done = false;
+  let result = [];
+  let sudah = path.R.split("_").map(function(el){return parseInt(el) || 0;});
+  if((sudah.indexOf(RUTE[from][0])<1) && RUTE[from][0] == to){
+    result.push({T:path.T+"L",R: path.R+RUTE[from][0]+"_" });
+    done = true;
+  }
+  if((sudah.indexOf(RUTE[from][1])<1) && RUTE[from][1] == to){
+    result.push({T:path.T+"R",R: path.R+RUTE[from][1]+"_" });
+    done = true;
+  }
+  
+  if(!done || (!shortest && path.T.length < max)){
+
+
+    if(sudah.indexOf(RUTE[from][0])==-1) {
+          let i = cariRute(RUTE[from][0],to,max,{T:path.T+"L",R: path.R+RUTE[from][0]+"_" });
+          for(let r of i){
+            result.push(r);
+          }
+    }
+    
+    if(sudah.indexOf(RUTE[from][1])==-1) {
+          let i = cariRute(RUTE[from][1],to,max,{T:path.T+"R",R: path.R+RUTE[from][1]+"_" });
+          for(let r of i){
+            result.push(r);
+          }
+    }
+
+  }
+
+  return result;
+}
+
+
+function searchRoute(){
+  let from = parseInt(document.getElementById('from').value);
+  let to = parseInt(document.getElementById('to').value);
+
+  if(!from || from<1 || from>23){
+    from = 4;
+    document.getElementById('from').value = from;
+  }
+  if(!to || to<1 || to>23){
+    to = 23;
+    document.getElementById('to').value = to;
+  }
+
+  let result = document.getElementById('result');
+  result.innerText = "";
+
+  let i= shortest?1:25,founds = null;
+
+  while((founds == null || !founds[0]) && i <= 25){
+    founds = cariRute(from,to,i);
+    if(founds!=null && founds[0]){
+      founds = founds.sort(function(a,b){return a.T.length>b.T.length?1:-1});
+      for(let j in founds){
+        let found = founds[j];        
+
+        let tmp;
+        let table = document.createElement("table");
+        let row = document.createElement("tr");
+        // row.appendChild((tmp = document.createElement("th")) && (tmp.innerText = parseInt(j)+1) && (tmp.setAttribute("rowspan","2") || 1) && tmp );
+        // row.appendChild((tmp = document.createElement("th")) && (tmp.innerText = found.T.length+" Steps") && (tmp.setAttribute("rowspan","2") || 1) && tmp );
+
+        row.appendChild((tmp = document.createElement("th")) && (tmp.innerText = "Steps") && tmp );
+        row.appendChild((tmp = document.createElement("th")) && (tmp.innerText = "Move") && tmp );
+        for(let j=0;j<found.T.length;j++){
+         row.appendChild((tmp = document.createElement("td")) && (tmp.innerText = found.T[j]) && tmp );
+        }
+        table.appendChild(row);
+
+        row = document.createElement("tr");
+        row.appendChild((tmp = document.createElement("td")) && (tmp.innerText = found.T.length) && tmp );
+        row.appendChild((tmp = document.createElement("th")) && (tmp.innerText = "Room") && tmp );
+        for(let j of found.R.slice(0,-1).split("_").slice(1)){
+         row.appendChild((tmp = document.createElement("td")) && (tmp.innerText = j) && tmp );
+        }
+        table.appendChild(row);
+
+
+        table.setAttribute("border","1");
+        result.appendChild(table);
+      }
+
+
+     return;
+    }
+    i++;
+  }
+  result.innerText = "Route Not Found";
+
+}
+
+onload = function(){
+  searchRoute();
+};
+</script>
+<h2>Lizards 2 Path finder</h2>
+<table>
+  <tr>
+    <td>21</td><td>22</td><td>23</td><td>24</td><td>25</td>
+  </tr>
+  <tr>
+    <td>16</td><td>17</td><td>18</td><td>19</td><td>20</td>
+  </tr>
+  <tr>
+    <td>11</td><td>12</td><td>13</td><td>14</td><td>15</td>
+  </tr>
+  <tr>
+    <td>6</td><td>7</td><td>8</td><td>9</td><td>10</td>
+  </tr>
+  <tr>
+    <td>1</td><td>2</td><td>3</td><td>4</td><td>5</td>
+  </tr>
+</table>
+<br/>
+From:<input type="number" min="1" max="25" id="from" onchange="" value="4">&nbsp;
+To:<input type="number" min="1" max="25" id="to" onchange="" value="23">
+<button onclick="searchRoute()">GO</button>
+<div id="result"></div>
