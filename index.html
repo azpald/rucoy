@@ -92,11 +92,11 @@ function searchRoute(){
   let from = parseInt(document.getElementById('from').value);
   let to = parseInt(document.getElementById('to').value);
 
-  if(!from || from<1 || from>23){
+  if(!from || from<1 || from>25){
     from = 4;
     document.getElementById('from').value = from;
   }
-  if(!to || to<1 || to>23){
+  if(!to || to<1 || to>25){
     to = 23;
     document.getElementById('to').value = to;
   }
